@@ -1,0 +1,14 @@
+asgiref==3.11.1
+certifi==2026.2.25
+charset-normalizer==3.4.6
+diff-match-patch==20241021
+Django==5.2.12
+django-environ==0.13.0
+django-extensions==4.1
+django-import-export==4.4.0
+idna==3.11
+pillow==12.1.1
+requests==2.33.1
+sqlparse==0.5.5
+tablib==3.9.0
+urllib3==2.6.3
