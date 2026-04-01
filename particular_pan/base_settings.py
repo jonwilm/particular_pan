@@ -105,6 +105,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # User Model
 AUTH_USER_MODEL = 'users.User'
 
+AUTHENTICATION_BACKENDS = [
+    'apps.users.backends.EmailOrDNIBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 LOGIN_URL = '/login'
 
 
