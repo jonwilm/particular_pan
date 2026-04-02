@@ -10,13 +10,14 @@ class User(AbstractUser):
     
     ROLE_CHOICES = [
         (ADMIN, 'Administrador'),
-        (SUPERVISOR, 'Supervisor de productores'),
+        (SUPERVISOR, 'Supervisor'),
         (PRODUCTOR, 'Productor'),
     ]
     
     username = None
     
     role = models.CharField(
+        'Rol del usuario',
         max_length=20,
         choices=ROLE_CHOICES,
         default=PRODUCTOR
@@ -49,4 +50,4 @@ class User(AbstractUser):
         verbose_name_plural = 'Usuarios'
 
     def __str__(self):
-        return f"{self.get_full_name() or self.email} - {self.get_role_display()}"
+        return f"{self.get_full_name() or self.email}"

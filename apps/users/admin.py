@@ -1,5 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.db.models import Q
+from django.utils.html import format_html
+
 from .models import User
 from .forms import LoginFormCustom
 
@@ -16,6 +19,13 @@ class CustomUserAdmin(UserAdmin):
                 'last_name',
             )
         }),
+        
+        (('Jerarquía'), {
+            'fields': (
+                'role',
+                'supervisor',
+            )
+        }),
 
         (('Permisos'), {
             'fields': (
@@ -26,10 +36,9 @@ class CustomUserAdmin(UserAdmin):
             ),
         }),
 
-        (('Jerarquía'), {
+        ((''), {
             'fields': (
-                'role',
-                'supervisor',
+                'last_login',
             )
         }),
     )
@@ -50,8 +59,9 @@ class CustomUserAdmin(UserAdmin):
     )
     
     login_form = LoginFormCustom
-    list_display = ('email', 'last_name', 'first_name', 'role', 'supervisor', 'date_joined', 'last_login', 'is_active', )
+    list_display = ('email', 'last_name', 'first_name', 'role', 'supervisor', 'date_joined', 'last_login', 'is_active',)
     list_filter = ('role',)
+    list_editable = ('is_active',)
     search_fields = ('first_name', 'last_name', 'email',)
     ordering = ('last_name', 'first_name', 'email',)
     readonly_fields = ('last_login',)
@@ -66,21 +76,28 @@ class CustomUserAdmin(UserAdmin):
         
         # Si es Supervisor, solo ve a sus productores asociados
         if user.role == User.SUPERVISOR:
-            return qs.filter(supervisor=user.pk)
+            return qs.filter(Q(pk=user.pk) | Q(supervisor=user.pk))
         
         # Si es Productor, solo se ve a sí mismo
         return qs.filter(pk=user.pk)
     
+    def get_changelist_instance(self, request):
+        user = request.user
+        if user.is_superuser or user.role == User.ADMIN:
+            self.list_editable = ('role', 'supervisor', 'is_active')
+        else:
+            self.list_editable = ('is_active',)
+            
+        return super().get_changelist_instance(request)
+    
     def get_readonly_fields(self, request, obj=None):
         user = request.user
-        # Solo el Admin puede asignar supervisores o cambiar productores de supervisor
-        if not (user.is_superuser or user.role == User.ADMIN):
-            return ('role', 'supervisor', 'is_staff', 'is_superuser')
+        if user.is_superuser or user.role == User.ADMIN:
+            return ('last_login',)
         
-        return super().get_readonly_fields(request, obj)
+        return ('role', 'supervisor', 'is_staff', 'is_superuser', 'groups', 'last_login',)
     
     def save_model(self, request, obj, form, change):
-        # Los supervisores solo pueden registrar nuevos productores a su cargo.
         if not change:
             if request.user.role == User.SUPERVISOR:
                 obj.role = User.PRODUCTOR
@@ -90,7 +107,6 @@ class CustomUserAdmin(UserAdmin):
         super().save_model(request, obj, form, change)
         
     def has_delete_permission(self, request, obj=None):
-        # El supervisor puede eliminar a sus productores.
         if request.user.is_superuser or request.user.role == User.ADMIN:
             return True
         
@@ -101,7 +117,15 @@ class CustomUserAdmin(UserAdmin):
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "supervisor":
-            # Solo permitir elegir a usuarios que tengan el rol de SUPERVISOR
             kwargs["queryset"] = User.objects.filter(role=User.SUPERVISOR)
             
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    # def highlight_row(self, obj):
+    #     clase = 'row-active' if obj.is_active else 'row-inactive'
+
+    #     return format_html(
+    #         '<script>document.currentScript.closest("tr").classList.add("{}");</script>',
+    #         clase
+    #     )
+    # highlight_row.short_description = ''

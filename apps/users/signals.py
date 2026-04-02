@@ -9,21 +9,21 @@ from .models import User
 def sync_flags(sender, instance, **kwargs):
     if instance.role == User.ADMIN:
         User.objects.filter(pk=instance.pk).update(
-            is_active=True,
+            # is_active=True,
             is_staff=True,
             is_superuser=True,
         )
 
     elif instance.role == User.SUPERVISOR:
         User.objects.filter(pk=instance.pk).update(
-            is_active=True,
+            # is_active=True,
             is_staff=True,
             is_superuser=False,
         )
 
     elif instance.role == User.PRODUCTOR:
         User.objects.filter(pk=instance.pk).update(
-            is_active=True,
+            # is_active=True,
             is_staff=True,
             is_superuser=False,
         )

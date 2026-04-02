@@ -34,6 +34,8 @@ SECRET_KEY = env('SECRET_KEY')
 # Application definition
 
 DJANGO_APPS = [
+    "admin_interface",
+    "colorfield",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +54,9 @@ THIRDS_APPS = [
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRDS_APPS
+
+X_FRAME_OPTIONS  =  "SAMEORIGIN" 
+SILENCED_SYSTEM_CHECKS  =  [ "security.W019" ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

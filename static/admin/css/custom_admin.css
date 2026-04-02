@@ -1,0 +1,15 @@
+.row-active {
+  background-color: #00ff0050 !important;
+}
+.row-inactive {
+  background-color: #ff000050 !important;
+}
+.row-green {
+  background-color: #00ff0050 !important;
+}
+.row-yellow {
+  background-color: #ffff0050 !important;
+}
+.row-red {
+  background-color: #ff000050 !important;
+}
