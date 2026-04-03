@@ -13,3 +13,28 @@
 .row-red {
   background-color: #ff000050 !important;
 }
+
+.row-pendiente {
+  background-color: #E2E8F0 !important;
+}
+.row-contactado {
+  background-color: #BEE3F8 !important;
+}
+.row-interesado {
+  background-color: #FEFCBF !important;
+}
+.row-no_interesado {
+  background-color: #FED7D7 !important;
+}
+.row-por_cerrar_venta {
+  background-color: #E9D8FD !important;
+}
+.row-venta_cerrada {
+  background-color: #C6F6D5 !important;
+}
+
+@media (min-width: 768px) {
+  .calendarbox, .clockbox {
+    width: 19em !important;
+  }
+}

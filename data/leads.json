@@ -1,0 +1,102 @@
+[
+  {
+    "full_name": "Alejandro Jose Rivas",
+    "dni": "15333444",
+    "phone": "58+58 12-1112233",
+    "email": "ale.rivas@gmail.com",
+    "birthdate": "1985-03-10",
+    "status": "PENDIENTE",
+    "observations": "Lead recolectado en operativo feriado. Interés en salud.",
+    "productor_id": 5
+  },
+  {
+    "full_name": "Mariana del Valle Torres",
+    "dni": "22100200",
+    "phone": "5804245556677",
+    "email": "marianatorres@hotmail.com",
+    "birthdate": "1994-11-25",
+    "status": "CONTACTADO",
+    "observations": "Se le envió información por correo el lunes.",
+    "productor_id": 5
+  },
+  {
+    "full_name": "Roberto Enrique Mendez",
+    "dni": "18999888",
+    "phone": "5804147778899",
+    "email": "robert.mendez@empresa.com",
+    "birthdate": "1988-06-05",
+    "status": "INTERESADO",
+    "observations": "Solicitó cotización de flota familiar.",
+    "productor_id": 6
+  },
+  {
+    "full_name": "Beatriz Eugenia Garcia",
+    "dni": "12444555",
+    "phone": "58+58 16-3334455",
+    "email": "bgarcia@yahoo.es",
+    "birthdate": "1976-01-20",
+    "status": "POR_CERRAR_VENTA",
+    "observations": "Presupuesto aprobado, pendiente firma de documentos.",
+    "productor_id": 6
+  },
+  {
+    "full_name": "Luis Alberto Chirinos",
+    "dni": "E-4.22.111",
+    "phone": "5804120001122",
+    "email": "lchirinos@extranjero.com",
+    "birthdate": "1982-09-15",
+    "status": "VENTA_CERRADA",
+    "observations": "Cliente cerrado. Póliza de accidentes personales.",
+    "productor_id": 7
+  },
+  {
+    "full_name": "Sofía Valentina Lugo",
+    "dni": "27555666",
+    "phone": "5804248889900",
+    "email": "sofiavlugo@academia.org",
+    "birthdate": "2000-05-12",
+    "status": "PENDIENTE",
+    "observations": "Referido por cliente actual.",
+    "productor_id": 7
+  },
+  {
+    "full_name": "Gustavo Adolfo Paez",
+    "dni": "14777333",
+    "phone": "5804142223344",
+    "email": "gpaez@servicios.net",
+    "birthdate": "1979-12-01",
+    "status": "NO_INTERESADO",
+    "observations": "Informó que por ahora no puede costear la prima.",
+    "productor_id": 5
+  },
+  {
+    "full_name": "Elena Mercedes Castillo",
+    "dni": "20666111",
+    "phone": "5804169990011",
+    "email": "elenacast@gmail.com",
+    "birthdate": "1992-08-14",
+    "status": "CONTACTADO",
+    "observations": "Pendiente llamar de nuevo el jueves por la tarde.",
+    "productor_id": 6
+  },
+  {
+    "full_name": "Franklin Jose Mujica",
+    "dni": "16555444",
+    "phone": "5804124445566",
+    "email": "fmujica@obra.com",
+    "birthdate": "1984-04-30",
+    "status": "INTERESADO",
+    "observations": "Interés en seguro funerario para el grupo familiar.",
+    "productor_id": 7
+  },
+  {
+    "full_name": "Victoria Isabel Peña",
+    "dni": "24888999",
+    "phone": "5804241110099",
+    "email": "vpena@estudiantes.ve",
+    "birthdate": "1996-02-28",
+    "status": "PENDIENTE",
+    "observations": "Sin observaciones adicionales.",
+    "productor_id": 3
+  }
+]

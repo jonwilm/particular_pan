@@ -47,10 +47,12 @@ DJANGO_APPS = [
 
 LOCAL_APPS = [
     'apps.users',
+    'apps.leads',
 ]
 
 THIRDS_APPS = [
     'import_export',
+    'rangefilter',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRDS_APPS
