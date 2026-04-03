@@ -1,0 +1,117 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+  <link rel="apple-touch-icon" sizes="57x57" href="{% static 'images/favicon/apple-icon-57x57.png' %}">
+  <link rel="apple-touch-icon" sizes="60x60" href="{% static 'images/favicon/apple-icon-60x60.png' %}">
+  <link rel="apple-touch-icon" sizes="72x72" href="{% static 'images/favicon/apple-icon-72x72.png' %}">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'images/favicon/apple-icon-76x76.png' %}">
+  <link rel="apple-touch-icon" sizes="114x114" href="{% static 'images/favicon/apple-icon-114x114.png' %}">
+  <link rel="apple-touch-icon" sizes="120x120" href="{% static 'images/favicon/apple-icon-120x120.png' %}">
+  <link rel="apple-touch-icon" sizes="144x144" href="{% static 'images/favicon/apple-icon-144x144.png' %}">
+  <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/favicon/apple-icon-152x152.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-icon-180x180.png' %}">
+  <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'images/favicon/android-icon-192x192.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="96x96" href="{% static 'images/favicon/favicon-96x96.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'images/favicon/manifest.json' %}">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="{% static 'images/favicon/ms-icon-144x144.png' %}">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="shortcut icon" href="{% static 'images/favicon/favicon.ico' %}" type="image/x-icon">
+  <link rel="icon" href="{% static 'images/favicon/favicon.ico' %}" type="image/x-icon">
+  
+  <title>Pan Seguros - {% block title %}{% endblock title %}</title>
+  
+  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles.min.css' %}">
+  
+  {% block stylesheet %}{% endblock stylesheet %}
+  
+  {% block css %}{% endblock css %}
+</head>
+<body>
+  
+  <div class="content-navbar fixed-top">
+    <nav class="navbar navbar-expand" style="height: 5rem;">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <img src="{% static 'images/logo-panseguros.png' %}" alt="">
+        </a>
+        <h5>{{ request.user.get_full_name|default:request.user.username }}</h5>
+      </div>
+    </nav>
+  </div>
+  
+  {% block content %}{% endblock content %}
+  
+  <footer class="bg-gray2">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-sm-3">
+          <section class="widget">
+            <img alt="pan" src="{% static 'images/logo-panseguros-blanco.png' %}" style="height: 3rem; margin-bottom: 20px;">
+            <p class="small text-gray9">
+              Pólizas se ofrecen y venden en muchos lados, pero sólo con nuestro asesoramiento comprás cobertura.
+            </p>
+          </section>
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-3">
+          <!-- <img class="img-fluid mb-3" src="{% static 'images/ssn-logo.png' %}">
+          <p class="text-gray9 text-center ultrasmall lh-1">
+            Superintendencia de Seguros de la Nación - Organo de Control de la Actividad Aseguradora y Reaseguradora.
+            <br>
+            0800-666-8400 - <a class="text-white" href="http://www.ssn.gob.ar" target="_blank" title="Superintendencia de Seguros de la Nación">www.ssn.gob.ar</a>
+            <br>
+            Nº de inscripción: 726
+          </p>
+          <div class="d-flex justify-content-around align-items-center">
+            <img src="{% static 'images/qr.jpg' %}" style="max-width: 20%;">
+            <img src="{% static 'images/qr.png' %}" style="max-width: 20%;">
+          </div> -->
+        </div>
+      </div>
+    </div>
+    <div class="border-top py-4">
+      <div class="container">
+        <p class="text-gray8 small mb-0">Desarrollo Web: <a class="text-gray7" href="https://neex.com.ar/" target="_blank">Neex Corp</a></p>
+      </div>
+    </div>
+  </footer>
+  
+  
+  <a href="https://wa.me/5491136806447" target="_blank">
+    <div class="whatsappme whatsappme--show whatsappme--tooltip">
+      <div class="whatsappme__button">
+        <svg class="whatsappme__button__open" viewBox="0 0 24 24">
+          <path fill="#fff" d="M3.516 3.516c4.686-4.686 12.284-4.686 16.97 0 4.686 4.686 4.686 12.283 0 16.97a12.004 12.004 0 01-13.754 2.299l-5.814.735a.392.392 0 01-.438-.44l.748-5.788A12.002 12.002 0 013.517 3.517zm3.61 17.043l.3.158a9.846 9.846 0 0011.534-1.758c3.843-3.843 3.843-10.074 0-13.918-3.843-3.843-10.075-3.843-13.918 0a9.846 9.846 0 00-1.747 11.554l.16.303-.51 3.942a.196.196 0 00.219.22l3.961-.501zm6.534-7.003l-.933 1.164a9.843 9.843 0 01-3.497-3.495l1.166-.933a.792.792 0 00.23-.94L9.561 6.96a.793.793 0 00-.924-.445 1291.6 1291.6 0 00-2.023.524.797.797 0 00-.588.88 11.754 11.754 0 0010.005 10.005.797.797 0 00.88-.587l.525-2.023a.793.793 0 00-.445-.923L14.6 13.327a.792.792 0 00-.94.23z"></path>
+        </svg>
+        <div class="whatsappme__button__sendtext">Abrir chat</div>
+        <svg class="whatsappme__button__send" viewBox="0 0 400 400" fill="none" fill-rule="evenodd" stroke="#fff" stroke-linecap="round" stroke-width="33">
+          <path class="wame_plain" stroke-dasharray="1096.67" stroke-dashoffset="1096.67" d="M168.83 200.504H79.218L33.04 44.284a1 1 0 0 1 1.386-1.188L365.083 199.04a1 1 0 0 1 .003 1.808L34.432 357.903a1 1 0 0 1-1.388-1.187l29.42-99.427"></path>
+          <path class="wame_chat" stroke-dasharray="1019.22" stroke-dashoffset="1019.22" d="M318.087 318.087c-52.982 52.982-132.708 62.922-195.725 29.82l-80.449 10.18 10.358-80.112C18.956 214.905 28.836 134.99 81.913 81.913c65.218-65.217 170.956-65.217 236.174 0 42.661 42.661 57.416 102.661 44.265 157.316"></path>
+        </svg>
+        <div class="whatsappme__tooltip" style="pointer-events: none;"><div>Hola! ¿En que te podemos ayudar?</div></div>
+      </div>
+    </div>
+  </a>
+  
+  <!-- scripts -->
+  <script src="{% static 'libs/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'libs/fortawesome/fontawesome-free/js/all.min.js' %}"></script>
+  
+  {% block js %}{% endblock js %}
+</body>
+</html>

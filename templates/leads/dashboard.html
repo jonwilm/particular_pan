@@ -1,0 +1,59 @@
+{% extends "leads/base.html" %}
+
+{% block content %}
+<div class="container mt-7-5r mb-5">
+  <h2>Dashboard de Leads</h2>
+  <hr>
+  
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <h5>Total Leads</h5>
+          <h3>{{ total_leads }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-danger text-white">
+        <div class="card-body">
+          <h5>Leads sin Gestión (+3 días)</h5>
+          <h3>{{ leads_frios }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h5>Eficiencia General</h5>
+          <h3>{{ eficiencia_equipo }}%</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <h4>Rendimiento por Productor</h4>
+  <table class="table table-striped border">
+    <thead>
+      <tr>
+        <th>Productor</th>
+        {% if request.user.is_superuser %} <th>Supervisor Responsable</th> {% endif %}
+        <th>Leads Asignados</th>
+        <th>Ventas Cerradas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in productores_stats %}
+      <tr>
+        <td>{{ p.get_full_name|default:p.username }}</td>
+        {% if request.user.is_superuser %}
+        <td>{{ p.supervisor.get_full_name|default:"Sin Supervisor" }}</td>
+        {% endif %}
+        <td>{{ p.total_asignados }}</td>
+        <td>{{ p.ventas_logradas }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
