@@ -36,7 +36,8 @@ SECRET_KEY = env('SECRET_KEY')
 DJANGO_APPS = [
     "admin_interface",
     "colorfield",
-    'django.contrib.admin',
+    # 'django.contrib.admin',
+    'particular_pan.admin.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

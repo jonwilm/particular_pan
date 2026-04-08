@@ -2,12 +2,13 @@ import re
 from datetime import date
 from django.db import models
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 
 class Lead(models.Model):
     STATUS = (
         ('PENDIENTE', 'Pendiente'),
-        # ('CONTACTADO', 'Contactado'),
+        ('CONTACTADO', 'Contactado'),
         ('INTERESADO', 'Interesado'),
         ('NO_INTERESADO', 'No Interesado'),
         ('POR_CERRAR_VENTA', 'Por Cerrar Venta'),
@@ -45,7 +46,8 @@ class Lead(models.Model):
         default='PENDIENTE'
     )
     observations = models.TextField(
-        'Observaciones generales', 
+        'Observaciones generales',
+        null=True,
         blank=True
     )
     productor = models.ForeignKey(
@@ -56,6 +58,21 @@ class Lead(models.Model):
         verbose_name='Productor a Cargo',
         null=True,
         blank=True
+    )
+    n_poliza = models.CharField(
+        'Número de Póliza',
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Opcional: Cargar solo si la venta está cerrada."
+    )
+    poliza = models.FileField(
+        "Póliza en PDF",
+        upload_to='leads/polizas/%Y/%m/',
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        null=True, 
+        blank=True,
+        help_text="Opcional: Cargar solo si la venta está cerrada."
     )
     date_creation = models.DateTimeField('Creación', auto_now_add=True)
     date_first_contact = models.DateTimeField('Primer Contacto', null=True, blank=True)

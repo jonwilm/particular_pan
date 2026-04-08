@@ -9,7 +9,9 @@ django-colorfield==0.14.0
 django-environ==0.13.0
 django-extensions==4.1
 django-import-export==4.4.0
+et_xmlfile==2.0.0
 idna==3.11
+openpyxl==3.1.5
 pillow==12.1.1
 python-slugify==8.0.4
 requests==2.33.1

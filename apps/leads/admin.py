@@ -100,6 +100,12 @@ class LeadAdmin(ImportExportModelAdmin):
     search_fields = ('full_name', 'dni', 'phone',)
     inlines = [LeadManagementInline]
     readonly_fields = ('date_creation', 'date_first_contact', 'date_last_contact')
+    
+    def has_import_permission(self, request):
+        return request.user.is_superuser
+
+    def has_export_permission(self, request):
+        return request.user.is_authenticated
         
     def get_age(self, obj):
         return obj.age

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+
+{% block stylesheet %}
+
+{% endblock stylesheet %}
+
+{% block css %}
+<style>
+  .fullpage {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fullpage .content {
+    text-align: center;
+  }
+  .fullpage .content h1 {
+    font-size: 4rem;
+    text-align: center;
+    color: #004076;
+    margin-bottom: 1rem;
+  }
+  .fullpage .content img {
+    display: block;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .fullpage .content a {
+    display: block;
+    padding: 0.5rem 1rem;
+    background-color: #004076;
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    margin-top: 1rem;
+    transition: all 0.5s;
+  }
+  .fullpage .content a:hover {
+    background-color: #00A8D3;
+  }
+</style>
+{% endblock css %}
+
+{% block content %}
+
+  <div class="fullpage">
+    <div class="content">
+      <img class="w-50 mx-auto" src="{% static 'images/logo-panseguros.png' %}" alt="">
+      <h1>PARTICULARES</h1>
+      <a href="{% url 'admin:index' %}">Panel de Administración</a>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block js %}
+
+{% endblock js %}
+
