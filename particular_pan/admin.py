@@ -5,8 +5,8 @@ class MyAdminSite(admin.AdminSite):
         app_dict = self._build_app_dict(request, app_label)
         
         # --- FILTRO: Eliminamos 'admin_interface' de la lista visual ---
-        # if 'admin_interface' in app_dict:
-        #     del app_dict['admin_interface']
+        if 'admin_interface' in app_dict:
+            del app_dict['admin_interface']
         
         # Convertimos el diccionario en lista para ordenar
         app_list = list(app_dict.values())
