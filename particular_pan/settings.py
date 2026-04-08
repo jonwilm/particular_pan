@@ -34,10 +34,10 @@ RECAPTCHA_SITE_KEY = ''
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mandrillapp.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'corporativos@pan.com.ar'
-EMAIL_HOST_PASSWORD = 'md-esE0YSGhJAk7vfUbIwiXmQ'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'PAN Seguros <corporativos@pan.com.ar>'
+DEFAULT_FROM_EMAIL = ''
 
-EMAIL_CONTACT_CORPORATIVO = 'corporativos@pan.com.ar'
-EMAIL_CONSULT = 'info@pan.com.ar'
+EMAIL_CONTACT_CORPORATIVO = ''
+EMAIL_CONSULT = ''
