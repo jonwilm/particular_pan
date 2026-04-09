@@ -3,7 +3,7 @@ from .base_settings import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['retiros.pan.com.ar']
+ALLOWED_HOSTS = ['retiro.pan.com.ar']
 
 
 # Database
@@ -22,7 +22,7 @@ DATABASES = {
 
 STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_ROOT = BASE_DIR / 'media'
-SITE_URL = 'retiros.pan.com.ar'
+SITE_URL = 'retiro.pan.com.ar'
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 
