@@ -1,3 +1,4 @@
+import re
 from datetime import date, timedelta
 from django.contrib import admin
 from django.contrib.auth import get_user_model
@@ -95,11 +96,56 @@ class LeadManagementInline(admin.StackedInline):
 @admin.register(Lead)
 class LeadAdmin(ImportExportModelAdmin):
     resource_class = LeadResource
-    list_display = ('full_name', 'dni', 'get_age', 'status', 'get_n_records', 'date_creation', 'date_first_contact', 'date_last_contact', 'productor', 'highlight_row')
-    list_filter = ('status', AgeRangeFilter, ProductorFilter, ('date_last_contact', admin.DateFieldListFilter), ('date_last_contact', DateRangeFilter),)
+    list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'date_creation', 'date_first_contact', 'date_last_contact', 'productor', 'highlight_row')
+    list_filter = ('status', 'gender', AgeRangeFilter, ProductorFilter, ('date_last_contact', admin.DateFieldListFilter), ('date_last_contact', DateRangeFilter),)
     search_fields = ('full_name', 'dni', 'phone',)
     inlines = [LeadManagementInline]
-    readonly_fields = ('date_creation', 'date_first_contact', 'date_last_contact')
+    readonly_fields = ('date_creation', 'date_first_contact', 'date_last_contact', 'email_link', 'phone_link', 'age_display')
+    
+    def get_whatsapp_link(self, phone_number):
+        if not phone_number:
+            return None
+        clean_number = re.sub(r'[^0-9]', '', str(phone_number))
+        if len(clean_number) <= 13 and not clean_number.startswith('54'):
+            clean_number = f"54{clean_number}"
+        return f"https://wa.me/{clean_number}"
+
+    def email_link(self, obj):
+        if obj.email:
+            return format_html(
+                '<a href="mailto:{0}" target="_blank" style="font-weight: bold; color: #205493; font-size: 14px;">'
+                'Enviar correo a {0}'
+                '</a>',
+                obj.email
+            )
+        return "Sin correo registrado"
+    
+    def phone_link(self, obj):
+        if obj.phone:
+            url = self.get_whatsapp_link(obj.phone)
+            return format_html(
+                '<a href="{0}" target="_blank" style="font-weight: bold; color: #205493; font-size: 14px;">'
+                'Enviar Whatsapp a {1}'
+                '</a>',
+                url,
+                obj.phone
+            )
+        return "Sin número registrado"
+    
+    email_link.short_description = 'Acción de contacto'
+    phone_link.short_description = 'Acción de contacto'
+
+    fieldsets = (
+        ('Datos Personales', {
+            'fields': ('full_name', 'dni', 'birthdate', 'age_display')
+        }),
+        ('Contacto', {
+            'fields': (('phone', 'phone_link'), ('email', 'email_link')) # El paréntesis los pone en la misma línea
+        }),
+        ('Gestión', {
+            'fields': ('status', 'observations', 'n_poliza')
+        }),
+    )
     
     def has_import_permission(self, request):
         return request.user.is_superuser
@@ -113,7 +159,7 @@ class LeadAdmin(ImportExportModelAdmin):
 
     def age_display(self, obj):
         return f"{obj.age} años" if obj.age else "-"
-    age_display.short_description = 'Edad Actual'
+    age_display.short_description = 'Edad'
     
     def get_n_records(self, obj):
         return obj.n_records

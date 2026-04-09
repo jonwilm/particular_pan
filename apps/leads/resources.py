@@ -1,15 +1,34 @@
 import re
 import unicodedata
+from datetime import datetime
 from import_export import resources, fields
+from import_export.widgets import DateWidget
 from .models import Lead
+
+
+class LatinoDateWidget(DateWidget):
+    def clean(self, value, row=None, *args, **kwargs):
+        if not value:
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        
+        # Intentamos parsear el formato DD/MM/AAAA
+        try:
+            return datetime.strptime(value.strip(), '%d/%m/%Y').date()
+        except (ValueError, TypeError):
+            # Si falla, dejamos que el widget padre intente otros formatos
+            return super().clean(value, row, *args, **kwargs)
+
 
 class LeadResource(resources.ModelResource):
     # Dejamos los column_name en MAYÚSCULAS para que la exportación salga así
     full_name = fields.Field(attribute='full_name', column_name='NOMBRE')
     dni = fields.Field(attribute='dni', column_name='DNI')
+    gender = fields.Field(attribute='gender', column_name='SEXO')
     phone = fields.Field(attribute='phone', column_name='TELEFONO')
     email = fields.Field(attribute='email', column_name='EMAIL')
-    birthdate = fields.Field(attribute='birthdate', column_name='FECHA DE NACIMIENTO')
+    birthdate = fields.Field(attribute='birthdate', column_name='FECHA DE NACIMIENTO', widget=LatinoDateWidget(format='%d/%m/%Y'))
     observations = fields.Field(attribute='observations', column_name='OBSERVACIONES')
     
     status = fields.Field(attribute='get_status_display', column_name='ESTADO', readonly=True)
@@ -22,7 +41,7 @@ class LeadResource(resources.ModelResource):
     class Meta:
         model = Lead
         import_id_fields = ('dni',)
-        fields = ('full_name', 'dni', 'phone', 'email', 'birthdate', 'observations', 'status', 'productor', 'n_poliza', 'date_creation', 'date_first_contact', 'date_last_contact')
+        fields = ('full_name', 'dni', 'gender', 'phone', 'email', 'birthdate', 'observations', 'status', 'productor', 'n_poliza', 'date_creation', 'date_first_contact', 'date_last_contact')
         skip_unchanged = True
         raise_errors = False 
 
@@ -36,6 +55,7 @@ class LeadResource(resources.ModelResource):
         mapeo_identidad = {
             'nombre': 'NOMBRE',
             'dni': 'DNI',
+            'sexo': 'SEXO',
             'telefono': 'TELEFONO',
             'email': 'EMAIL',
             'fecha de nacimiento': 'FECHA DE NACIMIENTO',
@@ -62,6 +82,20 @@ class LeadResource(resources.ModelResource):
         # 4. Lógica de limpieza usando las llaves oficiales (MAYÚSCULAS)
         dni_raw = str(row.get('DNI') or '')
         row['DNI'] = re.sub(r'[^0-9]', '', dni_raw)
+        
+        if row.get('NOMBRE'):
+            row['NOMBRE'] = row['NOMBRE'].upper()
+        
+        if row.get('EMAIL'):
+            row['EMAIL'] = row['EMAIL'].lower()
+        
+        gender_raw = str(row.get('SEXO') or '').lower()
+        if gender_raw in ['masculino', 'm']:
+            row['SEXO'] = 'MASCULINO'
+        elif gender_raw in ['femenino', 'f']:
+            row['SEXO'] = 'FEMENINO'
+        else:
+            row['SEXO'] = 'OTRO'
         
         if row.get('OBSERVACIONES') is None:
             row['OBSERVACIONES'] = ""
