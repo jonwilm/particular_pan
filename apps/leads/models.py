@@ -6,6 +6,19 @@ from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 
 class Lead(models.Model):
+    GENDER = (
+        ('MASCULINO', 'Masculino'),
+        ('FEMENINO', 'Femenino'),
+        ('OTRO', 'Otro'),
+    )
+    STATUS = (
+        ('PENDIENTE', 'Pendiente'),
+        ('CONTACTADO', 'Contactado'),
+        ('INTERESADO', 'Interesado'),
+        ('NO_INTERESADO', 'No Interesado'),
+        ('POR_CERRAR_VENTA', 'Por Cerrar Venta'),
+        ('VENTA_CERRADA', 'Venta Cerrada'),
+    )
     STATUS = (
         ('PENDIENTE', 'Pendiente'),
         ('CONTACTADO', 'Contactado'),
@@ -24,6 +37,12 @@ class Lead(models.Model):
         'DNI', 
         max_length=20, 
         unique=True
+    )
+    gender = models.CharField(
+        'Sexo',
+        max_length=20, 
+        choices=GENDER, 
+        default='OTRO'
     )
     phone = models.CharField(
         'Teléfono', 
@@ -59,6 +78,14 @@ class Lead(models.Model):
         null=True,
         blank=True
     )
+    quote = models.FileField(
+        "Cotización en PDF",
+        upload_to='leads/cotizaciones/%Y/%m/',
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        null=True, 
+        blank=True,
+        help_text="Opcional: Cargar PDF de cotización."
+    )
     n_poliza = models.CharField(
         'Número de Póliza',
         max_length=50,
@@ -72,21 +99,34 @@ class Lead(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
         null=True, 
         blank=True,
-        help_text="Opcional: Cargar solo si la venta está cerrada."
+        help_text="Opcional: Cargar solo PDF si la venta está cerrada."
     )
     date_creation = models.DateTimeField('Creación', auto_now_add=True)
     date_first_contact = models.DateTimeField('Primer Contacto', null=True, blank=True)
     date_last_contact = models.DateTimeField('Último Contacto', null=True, blank=True)
     
     def save(self, *args, **kwargs):
+        # Si el nombre existe, lo convertimos a mayúsculas
+        if self.full_name:
+            self.full_name = self.full_name.upper()
+        
+        # Opcional: También puedes asegurar que el email sea siempre minúsculas
+        if self.email:
+            self.email = self.email.lower()
+            
         # Limpia el DNI antes de guardar en cualquier caso
         if self.dni:
             self.dni = re.sub(r'[^0-9]', '', str(self.dni))
+            
+        # Si hay un número de póliza y el estado no es ya 'VENTA_CERRADA'
+        if self.n_poliza and self.n_poliza.strip():
+            self.status = 'VENTA_CERRADA'
+            
         super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = 'Lead - Potencial Cliente'
-        verbose_name_plural = 'Leads - Potenciales Clientes '
+        verbose_name = 'Prospecto - Potencial Cliente'
+        verbose_name_plural = 'Prospectos - Potenciales Clientes '
         ordering = ['-date_creation']
 
     @property
