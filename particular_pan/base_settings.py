@@ -61,6 +61,16 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRDS_APPS
 X_FRAME_OPTIONS  =  "SAMEORIGIN" 
 SILENCED_SYSTEM_CHECKS  =  [ "security.W019" ]
 
+from import_export.formats import base_formats
+
+from import_export.formats.base_formats import XLSX
+IMPORT_EXPORT_FORMATS = [XLSX]
+
+IMPORT_EXPORT_SKIP_ADMIN_LOG = False
+IMPORT_EXPORT_CHUNK_SIZE = 1000
+
+IMPORT_EXPORT_ENCODING = 'utf-8-sig'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
