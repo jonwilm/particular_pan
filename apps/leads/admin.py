@@ -96,7 +96,8 @@ class LeadManagementInline(admin.StackedInline):
 @admin.register(Lead)
 class LeadAdmin(ImportExportModelAdmin):
     resource_class = LeadResource
-    list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'date_creation', 'date_first_contact', 'date_last_contact', 'productor', 'highlight_row')
+    list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'date_first_contact', 'date_last_contact', 'date_creation', 'highlight_row')
+    list_editable = ()
     list_filter = ('status', 'gender', AgeRangeFilter, ProductorFilter, ('date_last_contact', admin.DateFieldListFilter), ('date_last_contact', DateRangeFilter),)
     search_fields = ('full_name', 'dni', 'phone',)
     inlines = [LeadManagementInline]
@@ -140,7 +141,7 @@ class LeadAdmin(ImportExportModelAdmin):
             'fields': ('full_name', 'dni', 'birthdate', 'age_display')
         }),
         ('Contacto', {
-            'fields': (('phone', 'phone_link'), ('email', 'email_link')) # El paréntesis los pone en la misma línea
+            'fields': (('phone', 'phone_link'), ('email', 'email_link'))
         }),
         ('Gestión', {
             'fields': ('status', 'observations', 'n_poliza')
@@ -164,18 +165,33 @@ class LeadAdmin(ImportExportModelAdmin):
     def get_n_records(self, obj):
         return obj.n_records
     get_n_records.short_description = 'N° Msjs'
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "productor":
+            user = request.user
+            if user.is_superuser or user.role == 'ADMIN':
+                kwargs["queryset"] = User.objects.filter(role='PRODUCTOR')
+            elif user.role == 'SUPERVISOR':
+                kwargs["queryset"] = User.objects.filter(supervisor=user, role='PRODUCTOR')
+            else:
+                kwargs["queryset"] = User.objects.filter(pk=user.pk)
+                
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def get_changelist_instance(self, request, *args, **kwargs):
+        self.list_editable = ()
+        if request.user.is_superuser or request.user.role in ['ADMIN', 'SUPERVISOR']:
+            self.list_editable = ('productor',)
+        
+        return super().get_changelist_instance(request, *args, **kwargs)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
-        # 1. Admin ve todos los leads de todos
         if user.is_superuser or user.role == 'ADMIN':
             return qs
-        # 2. Supervisor ve los leads de sus productores a cargo
         if user.role == 'SUPERVISOR':
-            # Buscamos los leads cuyo productor tenga como supervisor al usuario actual
             return qs.filter(productor__supervisor=user)
-        # 3. Productor solo ve sus propios leads
         return qs.filter(productor=user)
 
     def save_formset(self, request, form, formset, change):
