@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Q
+from django.templatetags.static import static
 from django.utils.html import format_html
 
 from .models import User
@@ -130,3 +131,9 @@ class CustomUserAdmin(UserAdmin):
     #         clase
     #     )
     # highlight_row.short_description = ''
+    
+    class Media:
+        js = (static('admin/js/admin_filters_custom.js'),)
+        css = {
+            'all': (static('admin/css/admin_filters_custom.css'),)
+        }
