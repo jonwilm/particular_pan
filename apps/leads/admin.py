@@ -2,6 +2,7 @@ import re
 from datetime import date, timedelta
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
@@ -115,7 +116,7 @@ class LeadAdmin(ImportExportModelAdmin):
         if obj.email:
             return format_html(
                 '<a href="mailto:{0}" target="_blank" style="font-weight: bold; color: #205493; font-size: 14px;">'
-                'Enviar correo a {0}'
+                '{0}'
                 '</a>',
                 obj.email
             )
@@ -126,33 +127,25 @@ class LeadAdmin(ImportExportModelAdmin):
             url = self.get_whatsapp_link(obj.phone)
             return format_html(
                 '<a href="{0}" target="_blank" style="font-weight: bold; color: #205493; font-size: 14px;">'
-                'Enviar Whatsapp a {1}'
+                '{1}'
                 '</a>',
                 url,
                 obj.phone
             )
         return "Sin número registrado"
     
-    email_link.short_description = 'Acción de contacto'
-    phone_link.short_description = 'Acción de contacto'
-
-    fieldsets = (
-        ('Datos Personales', {
-            'fields': ('full_name', 'dni', 'birthdate', 'age_display')
-        }),
-        ('Contacto', {
-            'fields': (('phone', 'phone_link'), ('email', 'email_link'))
-        }),
-        ('Gestión', {
-            'fields': ('status', 'observations', 'n_poliza')
-        }),
-    )
+    email_link.short_description = 'Contácto'
+    phone_link.short_description = 'Contácto'
     
     def has_import_permission(self, request):
-        return request.user.is_superuser
+        # return request.user.is_superuser
+        return request.user.is_authenticated
 
     def has_export_permission(self, request):
         return request.user.is_authenticated
+    
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
         
     def get_age(self, obj):
         return obj.age
@@ -184,7 +177,32 @@ class LeadAdmin(ImportExportModelAdmin):
             self.list_editable = ('productor',)
         
         return super().get_changelist_instance(request, *args, **kwargs)
-
+    
+    def get_list_display(self, request):
+        if request.user.role == 'PRODUCTOR':
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'highlight_row')
+        else:
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'highlight_row')
+        return list_display
+    
+    def get_fieldsets(self, request, obj=None):
+        datos_personales = ('Datos Personales', {
+            'fields': ('full_name', 'dni', 'birthdate', 'age_display')
+        })
+        contacto = ('Contacto', {
+            'fields': (('phone', 'phone_link'), ('email', 'email_link'))
+        })
+        gestion = ('Gestión', {
+            'fields': ('status', 'observations', 'n_poliza')
+        })
+        gestion_con_productor = ('Gestión', {
+            'fields': ('productor', 'status', 'observations', 'n_poliza')
+        })
+        if request.user.role == 'PRODUCTOR':
+            return (datos_personales, contacto, gestion)
+        else:
+            return (datos_personales, contacto, gestion_con_productor)
+        
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
@@ -202,6 +220,15 @@ class LeadAdmin(ImportExportModelAdmin):
             instance.save()
         formset.save_m2m()
         
+    def save_model(self, request, obj, form, change):
+        if not change:  # Solo al crear
+            if request.user.role == 'PRODUCTOR':
+                obj.productor = request.user
+        super().save_model(request, obj, form, change)
+        
+    def get_import_data_kwargs(self, request, *args, **kwargs):
+        kwargs.update({'request': request})
+        return kwargs
         
     def highlight_row(self, obj):
         clase = f"row-{obj.status.lower()}"
@@ -211,3 +238,9 @@ class LeadAdmin(ImportExportModelAdmin):
             clase
         )
     highlight_row.short_description = ''
+    
+    class Media:
+        js = (static('admin/js/admin_filters_custom.js'),)
+        css = {
+            'all': (static('admin/css/admin_filters_custom.css'),)
+        }

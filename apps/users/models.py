@@ -4,17 +4,16 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('El Email es obligatorio')
-        email = self.normalize_email(email)
+    def create_user(self, dni, password=None, **extra_fields):
+        if not dni:
+            raise ValueError('El DNI es obligatorio')
         extra_fields.setdefault('is_active', True)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(dni=dni, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, dni, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('role', 'ADMIN')
@@ -24,7 +23,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser debe tener is_superuser=True.')
 
-        return self.create_user(email, password, **extra_fields)
+        return self.create_user(dni, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -56,12 +55,12 @@ class User(AbstractUser):
         verbose_name='Supervisor a cargo'
     )
     
-    dni = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    email = models.EmailField(unique=True)
+    dni = models.CharField('DNI', max_length=20, unique=True)
+    email = models.EmailField('Email', null=True, blank=True)
     
     objects = UserManager()
     
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'dni'
     REQUIRED_FIELDS = []
     
     def clean(self):
@@ -76,4 +75,4 @@ class User(AbstractUser):
         verbose_name_plural = 'Usuarios'
 
     def __str__(self):
-        return f"{self.get_full_name() or self.email}"
+        return f"{self.get_full_name() or self.dni}"

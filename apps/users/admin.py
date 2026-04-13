@@ -12,11 +12,12 @@ admin.site.login_form = LoginFormCustom
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('email', 'dni', 'password')}),
+        (None, {'fields': ('dni', 'password')}),
         (('Información Personal'), {
             'fields': (
                 'first_name',
                 'last_name',
+                'email',
             )
         }),
         
@@ -27,14 +28,14 @@ class CustomUserAdmin(UserAdmin):
             )
         }),
 
-        (('Permisos'), {
-            'fields': (
-                'is_active',
-                'is_staff',
-                'is_superuser',
-                'groups',
-            ),
-        }),
+        # (('Permisos'), {
+        #     'fields': (
+        #         'is_active',
+        #         'is_staff',
+        #         'is_superuser',
+        #         'groups',
+        #     ),
+        # }),
 
         ((''), {
             'fields': (
@@ -46,10 +47,10 @@ class CustomUserAdmin(UserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': (
-                'email',
                 'dni',
                 'first_name',
                 'last_name',
+                'email',
                 'password1',
                 'password2',
                 'role',
@@ -59,7 +60,7 @@ class CustomUserAdmin(UserAdmin):
     )
     
     login_form = LoginFormCustom
-    list_display = ('email', 'last_name', 'first_name', 'role', 'supervisor', 'date_joined', 'last_login', 'is_active',)
+    list_display = ('dni', 'last_name', 'first_name', 'email', 'role', 'supervisor', 'date_joined', 'last_login', 'is_active',)
     list_filter = ('role',)
     list_editable = ('is_active',)
     search_fields = ('first_name', 'last_name', 'email',)

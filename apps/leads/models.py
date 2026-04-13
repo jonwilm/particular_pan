@@ -19,14 +19,6 @@ class Lead(models.Model):
         ('POR_CERRAR_VENTA', 'Por Cerrar Venta'),
         ('VENTA_CERRADA', 'Venta Cerrada'),
     )
-    STATUS = (
-        ('PENDIENTE', 'Pendiente'),
-        ('CONTACTADO', 'Contactado'),
-        ('INTERESADO', 'Interesado'),
-        ('NO_INTERESADO', 'No Interesado'),
-        ('POR_CERRAR_VENTA', 'Por Cerrar Venta'),
-        ('VENTA_CERRADA', 'Venta Cerrada'),
-    )
 
     # Datos Personales
     full_name = models.CharField(

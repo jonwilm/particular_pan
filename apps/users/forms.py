@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 
 class LoginFormCustom(AuthenticationForm):
     username = forms.CharField(
-        label="Email o DNI", # Este es el texto que aparecerá
+        label="DNI",
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'autocapitalize': 'none',
