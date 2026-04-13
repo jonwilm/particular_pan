@@ -180,9 +180,9 @@ class LeadAdmin(ImportExportModelAdmin):
     
     def get_list_display(self, request):
         if request.user.role == 'PRODUCTOR':
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'n_poliza', 'highlight_row')
         else:
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'n_poliza', 'highlight_row')
         return list_display
     
     def get_fieldsets(self, request, obj=None):

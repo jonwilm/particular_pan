@@ -151,7 +151,7 @@ class LeadManagement(models.Model):
         blank=True
     )
     response = models.TextField(
-        'Respuesta del Lead',
+        'Respuesta del prospecto',
         blank=True
     )
     new_status = models.CharField(
@@ -167,8 +167,8 @@ class LeadManagement(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Gestión de Leads'
-        verbose_name_plural = 'Historial de Gestion de Leads'
+        verbose_name = 'Gestión de Prospectos'
+        verbose_name_plural = 'Historial de Gestion'
         
     def __str__(self):
         count = self.lead.historial.filter(id__lte=self.id).count() or "Nuevo"
