@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const filterPanel = document.getElementById('changelist-filter');
   
   if (container && filterPanel) {
+    filterPanel.style.display = 'none';
     // Aseguramos la posición relativa del contenedor
     container.style.position = 'relative';
     
@@ -11,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleBtn.id = 'toggle-filters-btn'; // <-- ID asignado
     toggleBtn.innerHTML = 'Ocultar Filtros';
     toggleBtn.type = 'button';
-        
+    
     container.appendChild(toggleBtn);
     
     // Lógica de colapso
@@ -22,4 +23,11 @@ document.addEventListener('DOMContentLoaded', function() {
       toggleBtn.innerHTML = isHidden ? 'Ocultar Filtros' : 'Ver Filtros';
     });
   }
+  
+  setTimeout(function() {
+    const tabGestion = document.querySelector('#tablink-historial-de-gestion');
+    if (tabGestion) {
+      tabGestion.click();
+    }
+  }, 100);
 });

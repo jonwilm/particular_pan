@@ -130,7 +130,7 @@ class Lead(models.Model):
     
     @property
     def n_records(self):
-        return self.historial.count()
+        return self.historial_lead.count()
 
     def __str__(self):
         return f"{self.full_name}"
@@ -140,7 +140,7 @@ class LeadManagement(models.Model):
     lead = models.ForeignKey(
         Lead, 
         on_delete=models.CASCADE, 
-        related_name='historial'
+        related_name='historial_lead'
     )
     date = models.DateTimeField(
         'Fecha de Contacto',
@@ -159,6 +159,11 @@ class LeadManagement(models.Model):
         max_length=20,
         choices=Lead.STATUS,
     )
+    next_contact_date = models.DateField(
+        'Proximo Contacto',
+        blank=True,
+        null=True
+    )
     create_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -171,7 +176,7 @@ class LeadManagement(models.Model):
         verbose_name_plural = 'Historial de Gestion'
         
     def __str__(self):
-        count = self.lead.historial.filter(id__lte=self.id).count() or "Nuevo"
+        count = self.lead.historial_lead.filter(id__lte=self.id).count() or "Nuevo"
         estado_nombre = self.get_new_status_display()
         return f"Mensaje {count} - Estado: {estado_nombre}"
         

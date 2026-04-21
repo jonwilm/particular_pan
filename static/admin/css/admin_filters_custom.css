@@ -17,3 +17,34 @@
     display: block;
   }
 }
+
+#result_list {
+  width: 100%;
+  table-layout: auto;
+}
+#result_list th, #result_list td {
+  padding: 8px 5px !important;
+  white-space: normal !important;
+  vertical-align: middle;
+}
+.column-full_name {
+  max-width: 150px;
+  word-wrap: break-word;
+}
+.column-email_link {
+  max-width: 120px;
+  word-wrap: break-word;
+}
+.column-email_link a, .column-phone_link a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.field-productor .related-widget-wrapper-link {
+  display: none !important;
+}
+
+.column-highlight_row, .field-highlight_row {
+  display: none;
+}

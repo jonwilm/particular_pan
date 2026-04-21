@@ -2,7 +2,9 @@ import re
 from datetime import date, timedelta
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.db.models import F
 from django.templatetags.static import static
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
@@ -82,12 +84,36 @@ class MonthFilter(admin.SimpleListFilter):
             # Filtra por el mes en el campo date_last_contact
             return queryset.filter(date_last_contact__month=self.value())
         return queryset
+    
+
+class NextContactTodayFilter(admin.SimpleListFilter):
+    title = 'Próximo Contacto'
+    parameter_name = 'proximo_hoy'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('hoy', 'Contactar hoy'),
+            ('vencidos', 'Vencidos no contactados'),
+        )
+
+    def queryset(self, request, queryset):
+        hoy = date.today()
+        if self.value() == 'hoy':
+            return queryset.filter(historial_lead__next_contact_date=hoy).distinct()
+        if self.value() == 'vencidos':
+            return queryset.filter(
+                historial_lead__next_contact_date__lt=hoy
+            ).exclude(
+                date_last_contact__date__gt=F('historial_lead__next_contact_date')
+            ).distinct()
+            
+        return queryset
 
 
 class LeadManagementInline(admin.StackedInline):
     model = LeadManagement
     extra = 0
-    fields = ('date', 'comment', 'response', 'new_status', 'create_by')
+    fields = ('date', 'comment', 'response', 'new_status', 'next_contact_date', 'create_by')
     readonly_fields = ('create_by',)
     
     def __str__(self):
@@ -97,9 +123,9 @@ class LeadManagementInline(admin.StackedInline):
 @admin.register(Lead)
 class LeadAdmin(ImportExportModelAdmin):
     resource_class = LeadResource
-    list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'date_first_contact', 'date_last_contact', 'date_creation', 'highlight_row')
+    list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'date_first_contact', 'date_last_contact', 'date_creation', 'next_contact_date_display', 'highlight_row')
     list_editable = ()
-    list_filter = ('status', 'gender', AgeRangeFilter, ProductorFilter, ('date_last_contact', admin.DateFieldListFilter), ('date_last_contact', DateRangeFilter),)
+    list_filter = ('status', 'gender', AgeRangeFilter, ProductorFilter, NextContactTodayFilter, ('date_last_contact', admin.DateFieldListFilter), ('date_last_contact', DateRangeFilter),)
     search_fields = ('full_name', 'dni', 'phone',)
     inlines = [LeadManagementInline]
     readonly_fields = ('date_creation', 'date_first_contact', 'date_last_contact', 'email_link', 'phone_link', 'age_display')
@@ -159,6 +185,27 @@ class LeadAdmin(ImportExportModelAdmin):
         return obj.n_records
     get_n_records.short_description = 'N° Msjs'
     
+    def next_contact_date_display(self, obj):
+        last_management = obj.historial_lead.filter(
+            next_contact_date__isnull=False 
+        ).order_by('-date').first()
+        
+        if last_management and last_management.next_contact_date:
+            next_contact = last_management.next_contact_date
+            last_contact = obj.date_last_contact
+            if hasattr(last_contact, 'date'):
+                last_contact = last_contact.date()
+            is_overdue = next_contact <= date.today()
+            is_already_contacted = last_contact and next_contact < last_contact
+            if is_overdue and not is_already_contacted:
+                return format_html(
+                    '<span style="color: red; font-weight: bold;">{}</span>',
+                    next_contact
+                )
+            return next_contact
+        return "-"
+    next_contact_date_display.short_description = 'Próximo Contacto'
+    
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "productor":
             user = request.user
@@ -180,9 +227,9 @@ class LeadAdmin(ImportExportModelAdmin):
     
     def get_list_display(self, request):
         if request.user.role == 'PRODUCTOR':
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'n_poliza', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
         else:
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'n_poliza', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
         return list_display
     
     def get_fieldsets(self, request, obj=None):
@@ -204,7 +251,7 @@ class LeadAdmin(ImportExportModelAdmin):
             return (datos_personales, contacto, gestion_con_productor)
         
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
+        qs = super().get_queryset(request).prefetch_related('historial_lead')
         user = request.user
         if user.is_superuser or user.role == 'ADMIN':
             return qs
