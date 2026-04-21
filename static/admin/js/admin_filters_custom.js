@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const filterPanel = document.getElementById('changelist-filter');
   
   if (container && filterPanel) {
-    filterPanel.style.display = 'none';
     // Aseguramos la posición relativa del contenedor
     container.style.position = 'relative';
     
@@ -15,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     container.appendChild(toggleBtn);
     
+    if (innerWidth >= 768) {
+      filterPanel.style.display = 'none';
+      toggleBtn.innerHTML = 'Ver Filtros';
+    }
+
     // Lógica de colapso
     toggleBtn.addEventListener('click', function(e) {
       e.preventDefault();

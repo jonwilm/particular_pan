@@ -5,7 +5,10 @@ from django.urls import reverse
 class MyAdminSite(admin.AdminSite):
     # --- AGREGAMOS LA REDIRECCIÓN AQUÍ ---
     def index(self, request, extra_context=None):
-        return redirect(reverse('admin:leads_lead_changelist'))
+        if request.user.is_authenticated:
+            if getattr(request.user, 'role', None) == 'PRODUCTOR':
+                return redirect(reverse('admin:leads_lead_changelist'))
+        return super().index(request, extra_context)
 
     # --- MANTENEMOS TU LÓGICA DE ORDENAMIENTO ---
     def get_app_list(self, request, app_label=None):
