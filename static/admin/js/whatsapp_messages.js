@@ -38,10 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Modal Whatsapp
   const dataElement = document.getElementById('wa-data-json');
-  if (!dataElement) {
-    console.error("No se encontró el elemento wa-data-json");
-    return;
-  }
+  if (!dataElement) return;
 
   const messages = JSON.parse(dataElement.textContent);
 
@@ -71,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       currentPhone = this.dataset.phone;
       currentName = this.dataset.name || ""; // Captura el nombre del data-name
-
+      
       document.getElementById('waLeadName').innerText = `Enviar a: ${currentName}`;
       
       const container = document.getElementById('waOptions');

@@ -196,3 +196,16 @@ class LeadManagement(models.Model):
             lead.date_last_contact = self.date
             
         lead.save()
+        
+        
+class WhatsappMessage(models.Model):
+    title = models.CharField('Título de la opción', max_length=100)
+    content = models.TextField('Texto del mensaje')
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = 'Mensaje de WhatsApp'
+        verbose_name_plural = 'Mensajes de WhatsApp'
+
+    def __str__(self):
+        return self.title

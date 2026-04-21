@@ -1,16 +1,18 @@
 import re
+import json
 from datetime import date, timedelta
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.db.models import F
 from django.templatetags.static import static
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils import timezone    
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter
 
-from .models import Lead, LeadManagement
+from .models import Lead, LeadManagement, WhatsappMessage
 from .resources import LeadResource
 
 
@@ -118,10 +120,17 @@ class LeadManagementInline(admin.StackedInline):
     
     def __str__(self):
         return super().__str__()
+    
+    
+@admin.register(WhatsappMessage)
+class WhatsappMessageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'content', 'active')
+    list_editable = ('active',)
 
 
 @admin.register(Lead)
 class LeadAdmin(ImportExportModelAdmin):
+    change_list_template = "admin/leads_change_list.html"
     resource_class = LeadResource
     list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'date_first_contact', 'date_last_contact', 'date_creation', 'next_contact_date_display', 'highlight_row')
     list_editable = ()
@@ -162,6 +171,18 @@ class LeadAdmin(ImportExportModelAdmin):
     
     email_link.short_description = 'Contácto'
     phone_link.short_description = 'Contácto'
+    
+    def whatsapp_button(self, obj):
+        if obj.phone:
+            phone_clean = ''.join(filter(str.isdigit, str(obj.phone)))
+            name = str(obj.full_name)
+            return format_html(
+                '<a href="#" class="whatsapp-trigger" data-phone="{}" data-name="{}" style="color: #205493; font-weight: bold;">'
+                '<i class="fab fa-whatsapp"></i> {}</a>',
+                phone_clean, name, obj.phone
+            )
+        return "-"
+    whatsapp_button.short_description = 'WhatsApp'
     
     def has_import_permission(self, request):
         # return request.user.is_superuser
@@ -227,9 +248,9 @@ class LeadAdmin(ImportExportModelAdmin):
     
     def get_list_display(self, request):
         if request.user.role == 'PRODUCTOR':
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'whatsapp_button', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
         else:
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'phone_link', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'whatsapp_button', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
         return list_display
     
     def get_fieldsets(self, request, obj=None):
@@ -285,6 +306,24 @@ class LeadAdmin(ImportExportModelAdmin):
             clase
         )
     highlight_row.short_description = ''
+    
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if getattr(request.user, 'role', None) == 'PRODUCTOR':
+            extra_context = extra_context or {}
+            ocultar_css = mark_safe('''
+                <style>
+                    .historylink, .btn-history { display: none !important; }
+                </style>
+            ''')
+            extra_context['title'] = mark_safe(f"Modificar Prospecto - Potencial Cliente {ocultar_css}")
+            
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+    
+    def changelist_view(self, request, extra_context=None):
+        messages = list(WhatsappMessage.objects.filter(active=True).values('id', 'title', 'content'))
+        extra_context = extra_context or {}
+        extra_context['whatsapp_json_data'] = json.dumps(messages)
+        return super().changelist_view(request, extra_context=extra_context)
     
     class Media:
         js = (static('admin/js/admin_filters_custom.js'),)
