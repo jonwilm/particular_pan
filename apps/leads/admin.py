@@ -115,7 +115,7 @@ class NextContactTodayFilter(admin.SimpleListFilter):
 class LeadManagementInline(admin.StackedInline):
     model = LeadManagement
     extra = 0
-    fields = ('date', 'comment', 'response', 'new_status', 'next_contact_date', 'create_by')
+    fields = ('date', 'comment', 'response', 'next_contact_date', 'create_by')
     readonly_fields = ('create_by',)
     
     def __str__(self):
@@ -174,7 +174,13 @@ class LeadAdmin(ImportExportModelAdmin):
     
     def whatsapp_button(self, obj):
         if obj.phone:
+            # 1. Dejamos solo dígitos
             phone_clean = ''.join(filter(str.isdigit, str(obj.phone)))
+            # 2. Eliminamos los ceros del inicio (ej: "011..." -> "11...")
+            phone_clean = phone_clean.lstrip('0')
+            # 3. Agregamos el prefijo 54 si no lo tiene y cumple el largo
+            if len(phone_clean) <= 13 and not phone_clean.startswith('54'):
+                phone_clean = f"549{phone_clean}"
             name = str(obj.full_name)
             return format_html(
                 '<a href="#" class="whatsapp-trigger" data-phone="{}" data-name="{}" style="color: #205493; font-weight: bold;">'

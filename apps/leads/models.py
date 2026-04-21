@@ -154,11 +154,11 @@ class LeadManagement(models.Model):
         'Respuesta del prospecto',
         blank=True
     )
-    new_status = models.CharField(
-        'Nuevo Estado',
-        max_length=20,
-        choices=Lead.STATUS,
-    )
+    # new_status = models.CharField(
+    #     'Nuevo Estado',
+    #     max_length=20,
+    #     choices=Lead.STATUS,
+    # )
     next_contact_date = models.DateField(
         'Proximo Contacto',
         blank=True,
@@ -177,8 +177,9 @@ class LeadManagement(models.Model):
         
     def __str__(self):
         count = self.lead.historial_lead.filter(id__lte=self.id).count() or "Nuevo"
-        estado_nombre = self.get_new_status_display()
-        return f"Mensaje {count} - Estado: {estado_nombre}"
+        # estado_nombre = self.get_new_status_display()
+        # return f"Mensaje {count} - Estado: {estado_nombre}"
+        return f"Mensaje {count}"
         
     def save(self, *args, **kwargs):
         # 1. Ejecutar el guardado normal del historial
@@ -186,7 +187,7 @@ class LeadManagement(models.Model):
         # 2. Actualizar datos en el Lead vinculado
         lead = self.lead
         # Actualizar Status
-        lead.status = self.new_status
+        # lead.status = self.new_status
         # Actualizar Fecha Primer Contacto (solo si es el primer registro)
         if not lead.date_first_contact:
             lead.date_first_contact = self.date
