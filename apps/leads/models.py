@@ -1,6 +1,7 @@
 import re
 from datetime import date
 from django.db import models
+from django.db.models import Min, Max
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.utils import timezone
@@ -172,8 +173,8 @@ class LeadManagement(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Gestión de Prospectos'
-        verbose_name_plural = 'Historial de Gestion'
+        verbose_name = 'Registro'
+        verbose_name_plural = 'Agenda'
         
     def __str__(self):
         count = self.lead.historial_lead.filter(id__lte=self.id).count() or "Nuevo"
@@ -182,20 +183,14 @@ class LeadManagement(models.Model):
         return f"Mensaje {count}"
         
     def save(self, *args, **kwargs):
-        # 1. Ejecutar el guardado normal del historial
         super().save(*args, **kwargs)
-        # 2. Actualizar datos en el Lead vinculado
         lead = self.lead
-        # Actualizar Status
-        # lead.status = self.new_status
-        # Actualizar Fecha Primer Contacto (solo si es el primer registro)
-        if not lead.date_first_contact:
-            lead.date_first_contact = self.date
-        # Actualizar Fecha Último Contacto (siempre la más reciente)
-        # Comparamos para asegurar que si se carga un historial viejo no pise la fecha actual
-        if not lead.date_last_contact or self.date > lead.date_last_contact:
-            lead.date_last_contact = self.date
-            
+        stats = lead.historial_lead.aggregate(
+            primer_contacto=Min('date'),
+            ultimo_contacto=Max('date')
+        )
+        lead.date_first_contact = stats['primer_contacto']
+        lead.date_last_contact = stats['ultimo_contacto']
         lead.save()
         
         

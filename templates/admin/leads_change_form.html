@@ -1,4 +1,4 @@
-{% extends "admin/change_list.html" %}
+{% extends "admin/change_form.html" %}
 {% load static %}
 
 {% block footer %}
@@ -8,5 +8,12 @@
     <script id="wa-data-json" type="application/json">
         {{ whatsapp_json_data|safe }}
     </script>
+
+    <style>
+        /* Ocultar botón historia para productores en la edición */
+        {% if user.role == 'PRODUCTOR' %}
+        .historylink { display: none !important; }
+        {% endif %}
+    </style>
 
 {% endblock %}

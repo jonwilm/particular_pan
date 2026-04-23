@@ -3,9 +3,12 @@ import json
 from datetime import date, timedelta
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.db.models import F
+from django.forms import Textarea
 from django.templatetags.static import static
-from django.utils import timezone    
+from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -114,9 +117,13 @@ class NextContactTodayFilter(admin.SimpleListFilter):
 
 class LeadManagementInline(admin.StackedInline):
     model = LeadManagement
-    extra = 0
+    extra = 1
     fields = ('date', 'comment', 'response', 'next_contact_date', 'create_by')
     readonly_fields = ('create_by',)
+    
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 3, 'cols': 80})},
+    }
     
     def __str__(self):
         return super().__str__()
@@ -131,6 +138,7 @@ class WhatsappMessageAdmin(admin.ModelAdmin):
 @admin.register(Lead)
 class LeadAdmin(ImportExportModelAdmin):
     change_list_template = "admin/leads_change_list.html"
+    change_form_template = "admin/leads_change_form.html"
     resource_class = LeadResource
     list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'date_first_contact', 'date_last_contact', 'date_creation', 'next_contact_date_display', 'highlight_row')
     list_editable = ()
@@ -138,6 +146,10 @@ class LeadAdmin(ImportExportModelAdmin):
     search_fields = ('full_name', 'dni', 'phone',)
     inlines = [LeadManagementInline]
     readonly_fields = ('date_creation', 'date_first_contact', 'date_last_contact', 'email_link', 'phone_link', 'age_display')
+    
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 3, 'cols': 80})},
+    }
     
     def get_whatsapp_link(self, phone_number):
         if not phone_number:
@@ -159,13 +171,18 @@ class LeadAdmin(ImportExportModelAdmin):
     
     def phone_link(self, obj):
         if obj.phone:
-            url = self.get_whatsapp_link(obj.phone)
+            # 1. Dejamos solo dígitos
+            phone_clean = ''.join(filter(str.isdigit, str(obj.phone)))
+            # 2. Eliminamos los ceros del inicio (ej: "011..." -> "11...")
+            phone_clean = phone_clean.lstrip('0')
+            # 3. Agregamos el prefijo 54 si no lo tiene y cumple el largo
+            if len(phone_clean) <= 13 and not phone_clean.startswith('54'):
+                phone_clean = f"549{phone_clean}"
+            name = str(obj.full_name)
             return format_html(
-                '<a href="{0}" target="_blank" style="font-weight: bold; color: #205493; font-size: 14px;">'
-                '{1}'
-                '</a>',
-                url,
-                obj.phone
+                '<a href="#" class="whatsapp-trigger" data-phone="{}" data-name="{}" style="color: #205493; font-weight: bold;">'
+                '<i class="fab fa-whatsapp"></i> {}</a>',
+                phone_clean, name, obj.phone
             )
         return "Sin número registrado"
     
@@ -220,6 +237,7 @@ class LeadAdmin(ImportExportModelAdmin):
         if last_management and last_management.next_contact_date:
             next_contact = last_management.next_contact_date
             last_contact = obj.date_last_contact
+            formatted_date = date_format(next_contact, format='d F Y', use_l10n=True).title()
             if hasattr(last_contact, 'date'):
                 last_contact = last_contact.date()
             is_overdue = next_contact <= date.today()
@@ -227,9 +245,12 @@ class LeadAdmin(ImportExportModelAdmin):
             if is_overdue and not is_already_contacted:
                 return format_html(
                     '<span style="color: red; font-weight: bold;">{}</span>',
-                    next_contact
+                    formatted_date
                 )
-            return next_contact
+            return format_html(
+                '<span style="color: black; font-weight: bold;">{}</span>',
+                formatted_date
+            )
         return "-"
     next_contact_date_display.short_description = 'Próximo Contacto'
     
@@ -314,15 +335,10 @@ class LeadAdmin(ImportExportModelAdmin):
     highlight_row.short_description = ''
     
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        if getattr(request.user, 'role', None) == 'PRODUCTOR':
-            extra_context = extra_context or {}
-            ocultar_css = mark_safe('''
-                <style>
-                    .historylink, .btn-history { display: none !important; }
-                </style>
-            ''')
-            extra_context['title'] = mark_safe(f"Modificar Prospecto - Potencial Cliente {ocultar_css}")
-            
+        messages = list(WhatsappMessage.objects.filter(active=True).values('id', 'title', 'content'))
+        extra_context = extra_context or {}
+        extra_context['whatsapp_json_data'] = json.dumps(messages)
+        
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
     
     def changelist_view(self, request, extra_context=None):
