@@ -13,6 +13,9 @@
 .row-red {
   background-color: #ff000050 !important;
 }
+.row-edad-mayor {
+  color: #FF0000 !important;
+}
 
 .row-pendiente {
   background-color: #E2E8F0 !important;

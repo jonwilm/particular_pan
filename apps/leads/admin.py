@@ -229,6 +229,13 @@ class LeadAdmin(ImportExportModelAdmin):
         return obj.n_records
     get_n_records.short_description = 'N° Msjs'
     
+    def get_n_poliza(self, obj):
+        return format_html(
+            '<span style="font-weight: bold;">{}</span>',
+            obj.n_poliza if obj.n_poliza else "-"
+        )
+    get_n_poliza.short_description = 'N° de Póliza'
+    
     def next_contact_date_display(self, obj):
         last_management = obj.historial_lead.filter(
             next_contact_date__isnull=False 
@@ -275,9 +282,9 @@ class LeadAdmin(ImportExportModelAdmin):
     
     def get_list_display(self, request):
         if request.user.role == 'PRODUCTOR':
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'whatsapp_button', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'whatsapp_button', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'get_n_poliza', 'highlight_row')
         else:
-            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'whatsapp_button', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'n_poliza', 'highlight_row')
+            list_display = ('full_name', 'dni', 'age_display', 'gender', 'status', 'get_n_records', 'productor', 'whatsapp_button', 'email_link', 'date_first_contact', 'date_last_contact', 'next_contact_date_display', 'get_n_poliza', 'highlight_row')
         return list_display
     
     def get_fieldsets(self, request, obj=None):
@@ -326,11 +333,24 @@ class LeadAdmin(ImportExportModelAdmin):
         return kwargs
         
     def highlight_row(self, obj):
-        clase = f"row-{obj.status.lower()}"
+        clase_status = f"row-{obj.status.lower()}"
+        clase_mayor = ""
+        if obj.age > 64 and not obj.n_poliza:
+            clase_mayor = "row-edad-mayor"
 
         return format_html(
-            '<script>document.currentScript.closest("tr").classList.add("{}");</script>',
-            clase
+            '<script>'
+            '   (function() {{'
+            '       var tr = document.currentScript.closest("tr");'
+            '       if (tr) {{'
+            '           tr.classList.add("{}");'
+            '           if ("{}") tr.classList.add("{}");'
+            '       }}'
+            '   }})();'
+            '</script>',
+            clase_status,
+            clase_mayor,
+            clase_mayor
         )
     highlight_row.short_description = ''
     

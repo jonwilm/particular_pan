@@ -183,15 +183,20 @@ class LeadManagement(models.Model):
         return f"Mensaje {count}"
         
     def save(self, *args, **kwargs):
+        is_new = self._state.adding
         super().save(*args, **kwargs)
         lead = self.lead
+        fields_to_update = ['date_first_contact', 'date_last_contact']
+        if is_new and lead.status.upper() == 'PENDIENTE':
+            lead.status = 'CONTACTADO'
+            fields_to_update.append('status')
         stats = lead.historial_lead.aggregate(
             primer_contacto=Min('date'),
             ultimo_contacto=Max('date')
         )
         lead.date_first_contact = stats['primer_contacto']
         lead.date_last_contact = stats['ultimo_contacto']
-        lead.save()
+        lead.save(update_fields=fields_to_update)
         
         
 class WhatsappMessage(models.Model):
